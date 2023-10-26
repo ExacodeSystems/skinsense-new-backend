@@ -1,7 +1,7 @@
+import DotenvFlow from "dotenv-flow";
 import mysql from "mysql2/promise";
-import dotenv from "dotenv";
 
-dotenv.config(); // Load the environment variables from .env file
+DotenvFlow.config()
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
