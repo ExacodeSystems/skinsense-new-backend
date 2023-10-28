@@ -6,8 +6,9 @@ class ProductController {
     try {
       const page = req.query.page ? parseInt(req.query.page as string) : undefined
       const number_per_page = req.query.number_per_page ? parseInt(req.query.number_per_page as string) : undefined
+      const search_query = req.query.search as string
 
-      const products = await productServiceInstance.getAll(page, number_per_page)
+      const products = await productServiceInstance.getAll(page, number_per_page, search_query)
       res.json(products)
     } catch (error) {
       next(error)
