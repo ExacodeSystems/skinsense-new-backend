@@ -6,6 +6,11 @@ class AnalyzerController {
   getAnalysis = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const requestData : AnalysisRequest = req.body
+
+      if(!requestData.concerns) throw new Error("Concerns cant be null")
+      if(!requestData.skinTypes) throw new Error("Skin types cant be null")
+      if(!requestData.productId) throw new Error("Product ID cant be null")
+
       const analysisResult = await analyzerServiceInstance.getAnalysis(requestData)
       res.json(analysisResult)
     } catch (error) {
