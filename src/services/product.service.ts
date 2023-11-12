@@ -2,6 +2,8 @@ import { RowDataPacket } from "mysql2";
 import { Product } from "../@types/product.js";
 import AbsService from "../abstracts/abs-service.js";
 import pool from "../config/db.js";
+import { ingredientsServiceInstance } from "./index.js";
+import { Ingredient } from "../@types/ingredient.js";
 
 class ProductService implements AbsService<Product> {
   async getAll(page = 1, number_per_page = 10, search_query: string | undefined = undefined): Promise<Product[]> {
@@ -34,6 +36,34 @@ class ProductService implements AbsService<Product> {
       return rows.length ? rows[0] : null;
     } catch (err) {
       throw err;
+    }
+  }
+  async getSimilar(ingredients: string) : Promise<Product[] | null> {
+    try {
+      if(!ingredients || ingredients === "") throw new Error("Please provide ingredients")
+      let baseQuery = "SELECT * FROM product"
+      const queryParams : string[] = []
+
+      const ingredientsSplitted = ingredients.split(",").map(x => x.trim())
+      const ingredientsData = await Promise.all(ingredientsSplitted.map(x => ingredientsServiceInstance.getByNameFromAll(x)))
+
+      ingredientsData.map((ing, index) => {
+        if(index === 0) {
+          baseQuery += " WHERE ingredients LIKE ? "
+        } else {
+          baseQuery += " AND ingredients LIKE ? "
+        }
+        queryParams.push(`%${ing?.name}%`)
+      })
+
+      const [rows] = await pool.query<Product[] & RowDataPacket[][]>(
+        baseQuery,
+        [...queryParams],
+      );
+
+      return rows
+    } catch (error) {
+      throw error;
     }
   }
   create(data: Product): Promise<Product | null> {

@@ -30,6 +30,17 @@ class IngredientService extends AbsService<Ingredient> {
       throw error
     }
   }
+  getByNameFromAll = async (name: string) : Promise<Ingredient | null> => {
+    try {
+      const [rows] = await pool.query<Ingredient[] & RowDataPacket[][]>(
+        "SELECT * FROM ingredients WHERE name = ?",
+        [name],
+      );
+      return rows.length ? rows[0] : null;
+    } catch (error) {
+      throw error
+    }
+  }
 }
 
 export default IngredientService

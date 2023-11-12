@@ -24,6 +24,16 @@ class ProductController {
       next(error)
     }
   }
+
+  getSimilar = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const ingredients = req.query.ingredients as string
+      const product = await productServiceInstance.getSimilar(ingredients)
+      res.json(product)
+    } catch (error) {
+      next(error)
+    }
+  }
 }
 
 export default ProductController
