@@ -1,5 +1,6 @@
 import { AnalysisRequest } from "../@types/analysis-request.js";
 import { Ingredient } from "../@types/ingredient.js";
+import { Product } from "../@types/product.js";
 import { ingredientsServiceInstance, productServiceInstance } from "./index.js";
 
 export enum BasePointValue {
@@ -132,9 +133,10 @@ class AnalyzerService {
       const { productId, skinTypes, concerns, ingredients : ingredientsString } = request
 
       let ing_name_arr : string[] = []
+      let productData: Product | null = null
 
       if(productId) {
-        const productData = await productServiceInstance.getById(productId);
+        productData = await productServiceInstance.getById(productId);
         if (!productData) throw new Error("Product not found")
 
         ing_name_arr = productData.ingredients.split(",").map(x => x.trim())
@@ -157,7 +159,9 @@ class AnalyzerService {
         denominator: denominator,
         percentage: score / denominator * 100,
         negEffects: this.countStringOccurrences(negEffects),
-        posEffects: this.countStringOccurrences(posEffects)
+        posEffects: this.countStringOccurrences(posEffects),
+        ingredients: ingredients,
+        product: productData
       }
     } catch (error) {
       throw error
