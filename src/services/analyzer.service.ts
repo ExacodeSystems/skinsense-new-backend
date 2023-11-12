@@ -161,6 +161,8 @@ class AnalyzerService {
       const badForSkinType = this.flattenArray(ingredients.map(x => x?.bad_for_skin_type).filter(x => x && x !== ""))
       const goodFor = this.flattenArray(ingredients.map(x => x?.good_for).filter(x => x && x !== ""))
       const badFor = this.flattenArray(ingredients.map(x => x?.bad_for).filter(x => x && x !== ""))
+      const incompatibleIngredients = this.flattenArray(ingredients.map(x => x?.incompatible_ingredients).filter(x => x && x !== ""))
+      const additionalDescriptions = this.flattenArray(ingredients.map(x => x?.additional_description).filter(x => x && x !== ""))
 
       const { score, denominator, negEffects, posEffects } = this.calculateScore({ request, ingredients: ingredients_sorted })
 
@@ -176,7 +178,9 @@ class AnalyzerService {
         goodForSkinType,
         badForSkinType,
         goodFor,
-        badFor
+        badFor,
+        incompatibleIngredients,
+        additionalDescriptions
       }
     } catch (error) {
       throw error
