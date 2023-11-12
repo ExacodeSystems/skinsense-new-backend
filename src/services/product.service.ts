@@ -44,7 +44,7 @@ class ProductService implements AbsService<Product> {
       let baseQuery = "SELECT * FROM product"
       const queryParams : string[] = []
 
-      const ingredientsSplitted = ingredients.split(",").map(x => x.trim())
+      const ingredientsSplitted = ingredients.split(",").map(x => x.trim()).filter(x => x && x !== "")
       const ingredientsData = await Promise.all(ingredientsSplitted.map(x => ingredientsServiceInstance.getByNameFromAll(x)))
 
       ingredientsData.map((ing, index) => {
@@ -55,6 +55,8 @@ class ProductService implements AbsService<Product> {
         }
         queryParams.push(`%${ing?.name}%`)
       })
+
+      baseQuery += " LIMIT 10"
 
       const [rows] = await pool.query<Product[] & RowDataPacket[][]>(
         baseQuery,

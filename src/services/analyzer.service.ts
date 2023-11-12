@@ -128,6 +128,11 @@ class AnalyzerService {
     return ingredientsString.split(",").map(x => x.trim())
   }
 
+  flattenArray = (array : any[]) : string[] => {
+    const flattened = array.map(x => x.split(",").map((y: string) => y.trim())).flat()
+    return [...new Set(flattened)]
+  } 
+
   getAnalysis = async (request: AnalysisRequest) => {
     try {
       const { productId, skinTypes, concerns, ingredients : ingredientsString } = request
@@ -139,7 +144,7 @@ class AnalyzerService {
         productData = await productServiceInstance.getById(productId);
         if (!productData) throw new Error("Product not found")
 
-        ing_name_arr = productData.ingredients.split(",").map(x => x.trim())
+        ing_name_arr = this.preprocessIngredientsString(productData.ingredients)
       } else if (ingredientsString) {
         ing_name_arr = this.preprocessIngredientsString(ingredientsString)
       }
@@ -151,6 +156,11 @@ class AnalyzerService {
       if (ingredients.length < 1) throw new Error("Product does not have enough ingredients")
 
       const ingredients_sorted = this.sortIngredients(ingredients)
+      const similarProducts = await productServiceInstance.getSimilar(ingredients.map(x => x?.name).join(","))
+      const goodForSkinType = this.flattenArray(ingredients.map(x => x?.good_for_skin_type).filter(x => x && x !== ""))
+      const badForSkinType = this.flattenArray(ingredients.map(x => x?.bad_for_skin_type).filter(x => x && x !== ""))
+      const goodFor = this.flattenArray(ingredients.map(x => x?.good_for).filter(x => x && x !== ""))
+      const badFor = this.flattenArray(ingredients.map(x => x?.bad_for).filter(x => x && x !== ""))
 
       const { score, denominator, negEffects, posEffects } = this.calculateScore({ request, ingredients: ingredients_sorted })
 
@@ -160,8 +170,13 @@ class AnalyzerService {
         percentage: score / denominator * 100,
         negEffects: this.countStringOccurrences(negEffects),
         posEffects: this.countStringOccurrences(posEffects),
-        ingredients: ingredients,
-        product: productData
+        ingredients: ingredients_sorted,
+        product: productData,
+        similarProducts,
+        goodForSkinType,
+        badForSkinType,
+        goodFor,
+        badFor
       }
     } catch (error) {
       throw error
