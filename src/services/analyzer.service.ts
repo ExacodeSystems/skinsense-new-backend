@@ -167,6 +167,7 @@ class AnalyzerService {
       const { score, denominator, negEffects, posEffects } = this.calculateScore({ request, ingredients: ingredients_sorted })
 
       return {
+        id: Date.now(),
         score: score,
         denominator: denominator,
         percentage: score / denominator * 100,
