@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  # Node API Service
+  api:
+    image: registry.exacode.io/skinsense_backend:latest # Specify your custom Node.js image name and tag
+    build: .
+    platform: linux/amd64
+    env_file: ./.env.production
+    command: npm run start
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=$DB_HOST
+      - DB_USER=$DB_USER
+      - DB_PASSWORD=$DB_PASSWORD
+      - DB_DATABASE=$DB_DATABASE
+      - JWT_SECRET=$JWT_SECRET
+      - JWT_EXPIRY=$JWT_EXPIRY
+    ports:
+      - "4000:3000"
+    volumes:
+      - ./api:/app
