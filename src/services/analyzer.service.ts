@@ -123,14 +123,28 @@ class AnalyzerService {
     return res
   }
 
+  preprocessIngredientsString = (ingredientsString: string) : string[] => {
+    return ingredientsString.split(",").map(x => x.trim())
+  }
+
   getAnalysis = async (request: AnalysisRequest) => {
     try {
-      const { productId, skinTypes, concerns } = request
+      const { productId, skinTypes, concerns, ingredients : ingredientsString } = request
 
-      const productData = await productServiceInstance.getById(productId);
-      if (!productData) throw new Error("Product not found")
+      let ing_name_arr : string[] = []
 
-      const ing_name_arr = productData.ingredients.split(",").map(x => x.trim())
+      if(productId) {
+        const productData = await productServiceInstance.getById(productId);
+        if (!productData) throw new Error("Product not found")
+
+        ing_name_arr = productData.ingredients.split(",").map(x => x.trim())
+      } else if (ingredientsString) {
+        ing_name_arr = this.preprocessIngredientsString(ingredientsString)
+      }
+
+      // If no ingredients found
+      if(ing_name_arr.length < 1) throw new Error("Analyzer can't find any ingredients")
+
       const ingredients = await Promise.all(ing_name_arr.map(x => ingredientsServiceInstance.getByName(x)))
       if (ingredients.length < 1) throw new Error("Product does not have enough ingredients")
 

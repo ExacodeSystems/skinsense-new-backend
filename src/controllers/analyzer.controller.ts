@@ -9,7 +9,7 @@ class AnalyzerController {
 
       if(!requestData.concerns) throw new Error("Concerns cant be null")
       if(!requestData.skinTypes) throw new Error("Skin types cant be null")
-      if(!requestData.productId) throw new Error("Product ID cant be null")
+      if(!requestData.productId && !requestData.ingredients) throw new Error("Product ID or ingredients can't be null")
 
       const analysisResult = await analyzerServiceInstance.getAnalysis(requestData)
       res.json(analysisResult)

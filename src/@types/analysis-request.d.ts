@@ -1,5 +1,6 @@
 export interface AnalysisRequest {
   skinTypes: string[],
   concerns: string[],
-  productId: string
+  productId?: string,
+  ingredients?: string
 }
