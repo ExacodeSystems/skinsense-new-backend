@@ -54,6 +54,7 @@ class AnalyzerService {
       const benefits_arr: string[] = ing.benefits?.split(",").map(x => x.trim()) ?? []
       const good_for_arr: string[] = ing.good_for?.split(",").map(x => x.trim()) ?? []
       const skin_types_arr: string[] = ing.good_for_skin_type?.split(",").map(x => x.trim()) ?? []
+      const bad_for_skin_types_arr: string[] = ing.bad_for_skin_type?.split(",").map(x => x.trim()) ?? []
       const concerns_arr: string[] = ing.concerns?.split(",").map(x => x.trim()) ?? []
       const bad_for_arr: string[] = ing.bad_for?.split(",").map(x => x.trim()) ?? []
 
@@ -62,14 +63,14 @@ class AnalyzerService {
       concerns_arr.map(x => negEffects.push(x))
       bad_for_arr.map(x => negEffects.push(x))
 
-      const benefit_intersecting = this.getIntersection(benefits_arr, request.concerns)
-      const benefit_difference = this.getArrayDifference(benefits_arr, request.concerns)
+      // const benefit_intersecting = this.getIntersection(benefits_arr, request.concerns)
+      // const benefit_difference = this.getArrayDifference(benefits_arr, request.concerns)
 
       const good_for_intersecting = this.getIntersection(good_for_arr, request.concerns)
       const good_for_difference = this.getArrayDifference(good_for_arr, request.concerns)
 
-      const concerns_intersecting = this.getIntersection(concerns_arr, request.concerns)
-      const concerns_difference = this.getArrayDifference(concerns_arr, request.concerns)
+      // const concerns_intersecting = this.getIntersection(concerns_arr, request.concerns)
+      // const concerns_difference = this.getArrayDifference(concerns_arr, request.concerns)
 
       const bad_for_intersecting = this.getIntersection(bad_for_arr, request.concerns)
       const bad_for_difference = this.getArrayDifference(bad_for_arr, request.concerns)
@@ -77,29 +78,31 @@ class AnalyzerService {
       const skin_types_intersecting = this.getIntersection(skin_types_arr, request.skinTypes)
       const skin_types_difference = this.getArrayDifference(skin_types_arr, request.skinTypes)
 
+      const bad_for_skin_types_intersecting = this.getIntersection(bad_for_skin_types_arr, request.skinTypes)
+
       const currentPosBaseScore = BasePointValue.POSITIVE_BASE_POINT - (index / ingredients.length)
       const currentNegBaseScore = BasePointValue.NEGATIVE_BASE_POINT + (index / ingredients.length)
 
       const posScore = (good_for_intersecting.length * currentPosBaseScore) +
-        ((skin_types_intersecting.length > 1 ? 1 : skin_types_intersecting.length) * currentPosBaseScore);
+        (skin_types_intersecting.length * currentPosBaseScore)
+        // ((skin_types_intersecting.length > 1 ? 1 : skin_types_intersecting.length) * currentPosBaseScore);
       // (benefit_intersecting.length * currentPosBaseScore)
 
       const neutScore = (good_for_difference.length * BasePointValue.NEUTRAL_BASE_POINT) +
+        (skin_types_difference.length * BasePointValue.NEUTRAL_BASE_POINT) +
         (bad_for_difference.length * BasePointValue.NEUTRAL_BASE_POINT * -1)
-      // (skin_types_difference.length * BasePointValue.NEUTRAL_BASE_POINT)
       // (benefit_difference.length * BasePointValue.NEUTRAL_BASE_POINT)
       // (concerns_difference.length * BasePointValue.NEUTRAL_BASE_POINT * -1) +
 
-      const negScore = (bad_for_intersecting.length * currentNegBaseScore)
+      const negScore = (bad_for_intersecting.length * currentNegBaseScore) + 
+        (bad_for_skin_types_intersecting.length * currentNegBaseScore)
       // (concerns_intersecting.length * currentNegBaseScore)
 
       totalScore += (posScore + neutScore + negScore)
 
       denominator += (good_for_arr.length * currentPosBaseScore) +
-        (1 * currentPosBaseScore) +
+        (skin_types_arr.length * currentPosBaseScore) +
         (bad_for_arr.length * currentNegBaseScore)
-      // (benefits_arr.length * currentPosBaseScore) 
-      // (concerns_arr.length * currentNegBaseScore) +
     })
 
     return {
@@ -108,7 +111,7 @@ class AnalyzerService {
       posEffects,
       negEffects
     }
-  }
+  } 
 
   sortIngredients = (ingredients: (Ingredient | null)[]) => {
     const res: Ingredient[] = []
@@ -125,7 +128,7 @@ class AnalyzerService {
   }
 
   preprocessIngredientsString = (ingredientsString: string) : string[] => {
-    return ingredientsString.split(",").map(x => x.trim())
+    return ingredientsString.split(",").map(x => x.trim().toLowerCase())
   }
 
   flattenArray = (array : any[]) : string[] => {
