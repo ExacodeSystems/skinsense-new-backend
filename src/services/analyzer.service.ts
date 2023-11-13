@@ -136,6 +136,13 @@ class AnalyzerService {
     return [...new Set(flattened)]
   } 
 
+  getPercentage = (score: number, denominator: number) : number => {
+    const percentage = score / denominator * 100
+    if (percentage > 100) return 100
+    else if (percentage < 0) return 0
+    else return percentage
+  }
+
   getAnalysis = async (request: AnalysisRequest) => {
     try {
       const { productId, skinTypes, concerns, ingredients : ingredientsString } = request
@@ -173,7 +180,7 @@ class AnalyzerService {
         id: Date.now(),
         score: score,
         denominator: denominator,
-        percentage: score / denominator * 100,
+        percentage: this.getPercentage(score, denominator),
         negEffects: this.countStringOccurrences(negEffects),
         posEffects: this.countStringOccurrences(posEffects),
         ingredients: ingredients_sorted,
