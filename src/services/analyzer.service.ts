@@ -5,7 +5,7 @@ import { ingredientsServiceInstance, productServiceInstance } from "./index.js";
 
 export enum BasePointValue {
   POSITIVE_BASE_POINT = 5,
-  NEUTRAL_BASE_POINT = 1,
+  NEUTRAL_BASE_POINT = 0, // 15 NOV
   NEGATIVE_BASE_POINT = -5
 }
 
@@ -174,7 +174,8 @@ class AnalyzerService {
 
       denominator += (good_for_arr.length * currentPosBaseScore) +
         (skin_types_arr.length * currentPosBaseScore) +
-        (bad_for_arr.length * currentNegBaseScore)
+        (bad_for_arr.length * currentNegBaseScore) + 
+        (bad_for_skin_types_arr.length * currentNegBaseScore)
     })
 
     return {
