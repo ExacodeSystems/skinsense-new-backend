@@ -5,7 +5,7 @@ import { ingredientsServiceInstance, productServiceInstance } from "./index.js";
 
 export enum BasePointValue {
   POSITIVE_BASE_POINT = 5,
-  NEUTRAL_BASE_POINT = 0, // 15 NOV
+  NEUTRAL_BASE_POINT = 1, // 15 NOV
   NEGATIVE_BASE_POINT = -5
 }
 
@@ -136,6 +136,15 @@ class AnalyzerService {
         (bad_for_skin_types_intersecting.length * currentNegBaseScore)
       // (concerns_intersecting.length * currentNegBaseScore)
 
+      const posScoreDenominator = (good_for_arr.length * currentPosBaseScore) +
+        (skin_types_arr.length * currentPosBaseScore)
+      // ((skin_types_intersecting.length > 1 ? 1 : skin_types_intersecting.length) * currentPosBaseScore);
+      // (benefit_intersecting.length * currentPosBaseScore)
+
+      const negScoreDenominator = (bad_for_arr.length * currentNegBaseScore) +
+        (bad_for_skin_types_arr.length * currentNegBaseScore)
+      // (concerns_intersecting.length * currentNegBaseScore)
+
       // Create In Depth Scoring
       good_for_intersecting.map(x => {
         if (!ingDepthAnalysis[x]) ingDepthAnalysis[x] = 0
@@ -172,10 +181,7 @@ class AnalyzerService {
 
       totalScore += (posScore + neutScore + negScore)
 
-      denominator += (good_for_arr.length * currentPosBaseScore) +
-        (skin_types_arr.length * currentPosBaseScore) +
-        (bad_for_arr.length * currentNegBaseScore) + 
-        (bad_for_skin_types_arr.length * currentNegBaseScore)
+      denominator += (posScoreDenominator + negScoreDenominator)
     })
 
     return {
