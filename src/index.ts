@@ -1,6 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { analyzerRoutes, productRoutes, todoRoutes } from "./routes/index.js";
+import { analyzerRoutes, authRoutes, productRoutes, todoRoutes, userRoutes } from "./routes/index.js";
 import { jsonErrorsHandler } from "./utils/errorsHandler.js";
 
 const app = express();
@@ -12,6 +12,8 @@ app.use(bodyParser.json());
 app.use("/todos", todoRoutes);
 app.use("/product", productRoutes)
 app.use("/analyzer", analyzerRoutes)
+app.use("/user", userRoutes)
+app.use("/auth", authRoutes)
 
 // Middlewares
 app.use(jsonErrorsHandler)
