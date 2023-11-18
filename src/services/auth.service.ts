@@ -7,14 +7,8 @@ class AuthService {
       const userData = await userServiceInstance.getById(user.id)
 
       if(!userData) {
-        const createdUser = await userServiceInstance.create({
-          id: user.id,
-          name: user.name,
-          email: user.email
-        })
-
+        const createdUser = await userServiceInstance.create(user)
         if (!createdUser) throw new Error("There's something error on registering user")
-
         return createdUser
       } else {
         return userData

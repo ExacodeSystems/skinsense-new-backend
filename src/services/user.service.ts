@@ -21,11 +21,14 @@ class UserService extends AbsService<User> {
   async create(data: User): Promise<User | null> {
     try {
       const [rows] = await pool.query<ResultSetHeader>(
-        "INSERT INTO user (id, email, name) VALUES (?, ?, ?)",
+        "INSERT INTO user (id, email, name, skin_types, skin_concerns, allergens) VALUES (?, ?, ?, ?, ?, ?)",
         [
           data.id,
           data.email,
-          data.name
+          data.name,
+          data.skin_types,
+          data.skin_concerns,
+          data.allergens
         ],
       );
 
@@ -38,8 +41,20 @@ class UserService extends AbsService<User> {
       throw error
     }
   }
-  update(id: string, data: Partial<User>): Promise<User | null> {
-    throw new Error("Method not implemented.");
+  async update(id: string, data: Partial<User>): Promise<User | null> {
+    try {
+      const q = "UPDATE user SET ? WHERE id = ?";
+      const [result] = await pool.query<ResultSetHeader>(q, [data, id]);
+  
+      if (result.affectedRows > 0) {
+        return await this.getById(id);
+      } else {
+        throw new Error("Failed to update user.");
+      }
+      // return result.affectedRows > 0 ? { await getUserById(id) } : null;
+    } catch (err) {
+      throw err;
+    }
   }
   delete(id: string): Promise<boolean> {
     throw new Error("Method not implemented.");

@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { userServiceInstance } from "../services/index.js";
+import { User } from "../@types/user.js";
 
 class UserController {
   getById = async (req: Request, res: Response, next: NextFunction) => {
@@ -14,10 +15,8 @@ class UserController {
 
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { id, name, email } = req.body;
-      const createdUser = await userServiceInstance.create({
-        id, name, email
-      });
+      const userData: User = req.body;
+      const createdUser = await userServiceInstance.create(userData);
       res.json(createdUser);
     } catch (error) {
       next(error)
