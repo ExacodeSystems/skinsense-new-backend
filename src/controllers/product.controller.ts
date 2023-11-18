@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, query } from "express";
-import { productServiceInstance } from "../services/index.js";
+import { productServiceInstance, reviewServiceInstance } from "../services/index.js";
 
 class ProductController {
   getAll = async (req: Request, res: Response, next: NextFunction) => {
@@ -20,6 +20,16 @@ class ProductController {
       const productId = req.params.id;
       const product = await productServiceInstance.getById(productId)
       res.json(product)
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  getReviews = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const productId = req.params.id;
+      const reviews = await reviewServiceInstance.getByProductId(productId)
+      res.json(reviews)
     } catch (error) {
       next(error)
     }

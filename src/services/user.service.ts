@@ -32,7 +32,7 @@ class UserService extends AbsService<User> {
       if (rows.affectedRows > 0) {
         return await this.getById(data.id);
       } else {
-        throw new Error("Failed to create billing cycle.");
+        throw new Error("Failed to create user.");
       }
     } catch (error) {
       throw error
