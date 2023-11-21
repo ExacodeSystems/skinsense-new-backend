@@ -67,9 +67,11 @@ class ProductService implements AbsService<Product> {
       throw error;
     }
   }
-  async getRecommended(ingredients: string[], category: string) : Promise<Product[] | null> {
+  async getRecommended(ingredients: string[], categories: string[]) : Promise<Product[] | null> {
     try {
       if(ingredients.length === 0) throw new Error("Please provide ingredients")
+      if(categories.length === 0) throw new Error("Please provide categories")
+
       let baseQuery = "SELECT * FROM product"
       const queryParams : string[] = []
 
@@ -84,11 +86,18 @@ class ProductService implements AbsService<Product> {
         queryParams.push(`%${ing?.name}%`)
       })
       
-      baseQuery += ")"
+      baseQuery += ") AND ("
 
-      baseQuery += " AND category_name = ?"
-      queryParams.push(category)
-      baseQuery += " LIMIT 10"
+      categories.map((category, index) => {
+        if (index === 0) {
+          baseQuery += " category_name = ?"
+        } else {
+          baseQuery += " OR category_name = ?"
+        }
+        queryParams.push(category)
+      })
+
+      baseQuery += ") LIMIT 20"
 
       const [rows] = await pool.query<Product[] & RowDataPacket[][]>(
         baseQuery,

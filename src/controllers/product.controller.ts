@@ -58,21 +58,27 @@ class ProductController {
       next(error)
     }
   }
+  
   getRecommended = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { skinTypes, concerns } = req.body
-      const category = req.params.category
+      const { skinTypes, concerns, categories } = req.body
 
       if (!skinTypes) throw new Error("Skin types can't be null")
       if (!concerns) throw new Error("Concerns can't be null")
+      if (!categories) throw new Error("Categories can't be null")
 
-      const ingredientsGoodForSkinTypes = await ingredientsServiceInstance.getByGoodForSkinTypes(skinTypes) ?? []
       const ingredientsGoodForConcerns = await ingredientsServiceInstance.getByGoodFor(concerns) ?? []
+      const ingredientsBadForConcerns = await ingredientsServiceInstance.getByBadFor(concerns) ?? []
+      const ingredientsGoodForSkinTypes = await ingredientsServiceInstance.getByGoodForSkinTypes(skinTypes) ?? []
+      const ingredientsBadForSkinTypes = await ingredientsServiceInstance.getByBadForSkinTypes(skinTypes) ?? []
 
-      const ingredientsIntersection = ingredientsGoodForSkinTypes.filter(n => !ingredientsGoodForConcerns.some(n2 => n.id == n2.id));
-      const ingredientsIntersectionNames = ingredientsIntersection.map(x => x.name)
-
-      const products = await productServiceInstance.getRecommended(ingredientsIntersectionNames, category)
+      const ingredientsIntersection = ingredientsGoodForConcerns.filter(n => ingredientsGoodForSkinTypes.some(n2 => n2.id === n.id))
+      const ingredientsWithoutUserBadForConcerns = ingredientsIntersection.filter(n => !ingredientsBadForConcerns.some(n2 => n2.id === n.id))
+      const ingredientsWithoutUserBadForSkinTypes = ingredientsWithoutUserBadForConcerns.filter(n => !ingredientsBadForSkinTypes.some(n2 => n2.id === n.id))
+      
+      const ingredientsIntersectionNames = ingredientsWithoutUserBadForSkinTypes.map(x => x.name)
+      
+      const products = await productServiceInstance.getRecommended(ingredientsIntersectionNames, categories)
 
       res.json(products)
     } catch (error) {
