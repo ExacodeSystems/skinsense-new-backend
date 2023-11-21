@@ -32,19 +32,21 @@ class ReviewService implements AbsService<Review> {
   }
   async create(data: Review): Promise<Review | null> {
     try {
+      const id = v1()
       const [rows] = await pool.query<ResultSetHeader>(
         "INSERT INTO review (id, rating, comment, user_id, product_id) VALUES (?, ?, ?, ?, ?)",
         [
-          v1(),
+          id,
           data.rating,
           data.comment,
           data.user_id,
           data.product_id
         ],
       );
-
+      
       if (rows.affectedRows > 0) {
-        return await this.getById(data.id);
+        let review = await this.getById(id)
+        return review;
       } else {
         throw new Error("Failed to create review.");
       }

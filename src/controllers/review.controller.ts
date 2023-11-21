@@ -26,7 +26,23 @@ class ReviewController {
     try {
       const review : Review = req.body;
       const createdReview = await reviewServiceInstance.create(review);
-      res.json(createdReview);
+      if (!createdReview) throw new Error("Can't create review")
+
+      const user = await userServiceInstance.getById(review.user_id)
+      const product = await productServiceInstance.getById(review.product_id)
+
+      const data = {
+        ...createdReview,
+        user,
+        product
+      }
+
+      console.log(
+        data
+      );
+      
+
+      res.json(data);
     } catch (error) {
       next(error)
     }

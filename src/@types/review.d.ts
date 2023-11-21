@@ -3,5 +3,6 @@ export type Review = {
   rating: number,
   comment: string,
   user_id: string,
-  product_id: string
+  product_id: string,
+  total_likes: number
 }
