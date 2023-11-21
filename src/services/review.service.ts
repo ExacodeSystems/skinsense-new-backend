@@ -19,13 +19,13 @@ class ReviewService implements AbsService<Review> {
       throw err;
     }
   }
-  async getByProductId(product_id: string): Promise<Review | null> {
+  async getByProductId(product_id: string): Promise<Review[] | null> {
     try {
       const [rows] = await pool.query<Review[] & RowDataPacket[][]>(
         "SELECT * FROM review WHERE product_id = ?",
         [product_id],
       );
-      return rows.length ? rows[0] : null;
+      return rows;
     } catch (err) {
       throw err;
     }

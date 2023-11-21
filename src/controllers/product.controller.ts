@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, query } from "express";
-import { productServiceInstance, reviewServiceInstance } from "../services/index.js";
+import { productServiceInstance, reviewServiceInstance, userServiceInstance } from "../services/index.js";
 
 class ProductController {
   getAll = async (req: Request, res: Response, next: NextFunction) => {
@@ -27,9 +27,23 @@ class ProductController {
 
   getReviews = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const productId = req.params.id;
-      const reviews = await reviewServiceInstance.getByProductId(productId)
-      res.json(reviews)
+      const reviewId = req.params.id;
+      const reviews = await reviewServiceInstance.getByProductId(reviewId)
+
+      if (!reviews) throw new Error("Can't find reviews")
+
+      const reviewsPopulated = reviews.map(async review => {
+        const user = await userServiceInstance.getById(review.user_id)
+        const product = await productServiceInstance.getById(review.product_id)
+        
+        return {
+          ...review,
+          user,
+          product
+        }
+      })
+
+      res.json(await Promise.all(reviewsPopulated))
     } catch (error) {
       next(error)
     }

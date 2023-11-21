@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { reviewServiceInstance } from "../services/index.js";
+import { productServiceInstance, reviewServiceInstance, userServiceInstance } from "../services/index.js";
 import { Review } from "../@types/review.js";
 
 class ReviewController {
@@ -7,17 +7,16 @@ class ReviewController {
     try {
       const reviewId = req.params.id;
       const review = await reviewServiceInstance.getById(reviewId)
-      res.json(review)
-    } catch (error) {
-      next(error)
-    }
-  }
+      if (!review) throw new Error("Can't find this review")
 
-  getByProductId = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const reviewId = req.params.id;
-      const review = await reviewServiceInstance.getById(reviewId)
-      res.json(review)
+      const user = await userServiceInstance.getById(review.user_id)
+      const product = await productServiceInstance.getById(review.product_id)
+
+      res.json({
+        ...review,
+        user,
+        product
+      })
     } catch (error) {
       next(error)
     }
