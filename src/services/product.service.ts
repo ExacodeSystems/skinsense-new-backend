@@ -3,7 +3,6 @@ import { Product } from "../@types/product.js";
 import AbsService from "../abstracts/abs-service.js";
 import pool from "../config/db.js";
 import { ingredientsServiceInstance } from "./index.js";
-import { Ingredient } from "../@types/ingredient.js";
 
 class ProductService implements AbsService<Product> {
   async getAll(page = 1, number_per_page = 10, search_query: string | undefined = undefined): Promise<Product[]> {
@@ -56,6 +55,39 @@ class ProductService implements AbsService<Product> {
         queryParams.push(`%${ing?.name}%`)
       })
 
+      baseQuery += " LIMIT 10"
+
+      const [rows] = await pool.query<Product[] & RowDataPacket[][]>(
+        baseQuery,
+        [...queryParams],
+      );
+
+      return rows
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getRecommended(ingredients: string[], category: string) : Promise<Product[] | null> {
+    try {
+      if(ingredients.length === 0) throw new Error("Please provide ingredients")
+      let baseQuery = "SELECT * FROM product"
+      const queryParams : string[] = []
+
+      const ingredientsData = await Promise.all(ingredients.map(x => ingredientsServiceInstance.getByNameFromAll(x)))
+
+      ingredientsData.map((ing, index) => {
+        if(index === 0) {
+          baseQuery += " WHERE (ingredients LIKE ?"
+        } else {
+          baseQuery += " OR ingredients LIKE ?"
+        }
+        queryParams.push(`%${ing?.name}%`)
+      })
+      
+      baseQuery += ")"
+
+      baseQuery += " AND category_name = ?"
+      queryParams.push(category)
       baseQuery += " LIMIT 10"
 
       const [rows] = await pool.query<Product[] & RowDataPacket[][]>(

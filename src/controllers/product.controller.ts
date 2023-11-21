@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, query } from "express";
-import { productServiceInstance, reviewServiceInstance, userServiceInstance } from "../services/index.js";
+import { ingredientsServiceInstance, productServiceInstance, reviewServiceInstance, userServiceInstance } from "../services/index.js";
 
 class ProductController {
   getAll = async (req: Request, res: Response, next: NextFunction) => {
@@ -35,7 +35,7 @@ class ProductController {
       const reviewsPopulated = reviews.map(async review => {
         const user = await userServiceInstance.getById(review.user_id)
         const product = await productServiceInstance.getById(review.product_id)
-        
+
         return {
           ...review,
           user,
@@ -54,6 +54,27 @@ class ProductController {
       const ingredients = req.query.ingredients as string
       const product = await productServiceInstance.getSimilar(ingredients)
       res.json(product)
+    } catch (error) {
+      next(error)
+    }
+  }
+  getRecommended = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { skinTypes, concerns } = req.body
+      const category = req.params.category
+
+      if (!skinTypes) throw new Error("Skin types can't be null")
+      if (!concerns) throw new Error("Concerns can't be null")
+
+      const ingredientsGoodForSkinTypes = await ingredientsServiceInstance.getByGoodForSkinTypes(skinTypes) ?? []
+      const ingredientsGoodForConcerns = await ingredientsServiceInstance.getByGoodFor(concerns) ?? []
+
+      const ingredientsIntersection = ingredientsGoodForSkinTypes.filter(n => !ingredientsGoodForConcerns.some(n2 => n.id == n2.id));
+      const ingredientsIntersectionNames = ingredientsIntersection.map(x => x.name)
+
+      const products = await productServiceInstance.getRecommended(ingredientsIntersectionNames, category)
+
+      res.json(products)
     } catch (error) {
       next(error)
     }

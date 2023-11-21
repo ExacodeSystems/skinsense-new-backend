@@ -41,6 +41,48 @@ class IngredientService extends AbsService<Ingredient> {
       throw error
     }
   }
+  getByGoodForSkinTypes = async (skinTypes: string[]) : Promise<Ingredient[] | null> => {
+    try {
+      let query = "SELECT * FROM ingredients_new"
+      let queryParams : string[] = []
+      
+      skinTypes.map((skinType, index) => {
+        if (index === 0) {
+          query += " WHERE good_for_skin_type LIKE ?"
+        } else {
+          query += " OR good_for_skin_type LIKE ?"
+        }
+        queryParams.push(`%${skinType}%`);
+      })
+
+      const [rows] = await pool.query<Ingredient[] & RowDataPacket[][]>(query, queryParams);
+
+      return rows
+    } catch (error) {
+      throw error
+    }
+  }
+  getByGoodFor = async (concerns: string[]) : Promise<Ingredient[] | null> => {
+    try {
+      let query = "SELECT * FROM ingredients_new"
+      let queryParams : string[] = []
+      
+      concerns.map((concern, index) => {
+        if (index === 0) {
+          query += " WHERE good_for LIKE ?"
+        } else {
+          query += " OR good_for LIKE ?"
+        }
+        queryParams.push(`%${concern}%`);
+      })
+
+      const [rows] = await pool.query<Ingredient[] & RowDataPacket[][]>(query, queryParams);
+
+      return rows
+    } catch (error) {
+      throw error
+    }
+  }
 }
 
 export default IngredientService

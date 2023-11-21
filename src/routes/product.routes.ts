@@ -8,5 +8,6 @@ router.get("/", controller.getAll);
 router.get("/:id", controller.getById);
 router.get("/:id/review", controller.getReviews);
 router.get("/similar/search", controller.getSimilar);
+router.post("/get-recommended/:category", controller.getRecommended)
 
 export default router;
