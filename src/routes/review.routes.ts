@@ -5,6 +5,7 @@ const router = express.Router();
 const controller = new ReviewController()
 
 router.get("/:id", controller.getById);
+router.post("/:id/addLike", controller.addLike);
 router.post("/", controller.create);
 
 export default router;

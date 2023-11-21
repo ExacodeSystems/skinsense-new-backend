@@ -22,6 +22,27 @@ class ReviewController {
     }
   }
 
+  addLike = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const reviewId = req.params.id;
+      const review = await reviewServiceInstance.addLike(reviewId)
+      if (!review) throw new Error("Can't find this review")
+
+      const user = await userServiceInstance.getById(review.user_id)
+      const product = await productServiceInstance.getById(review.product_id)
+
+      const data = {
+        ...review,
+        user,
+        product
+      }
+
+      res.json(data)
+    } catch (error) {
+      next(error)
+    }
+  }
+
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const review : Review = req.body;

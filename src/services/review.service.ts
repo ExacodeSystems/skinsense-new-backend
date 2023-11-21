@@ -5,8 +5,22 @@ import pool from "../config/db.js";
 import { v1 } from "uuid";
 
 class ReviewService implements AbsService<Review> {
-  getAll(): Promise<Review[]> {
-    throw new Error("Method not implemented.");
+  async addLike(id: string): Promise<Review | null> {
+    try {
+      const [rows] = await pool.query<ResultSetHeader>(
+        "UPDATE review SET total_likes = total_likes + 1 WHERE id = ?",
+        [id],
+      );
+      
+      if (rows.affectedRows > 0) {
+        let review = await this.getById(id)
+        return review;
+      } else {
+        throw new Error("Failed to add like.");
+      }
+    } catch (error) {
+      throw error;
+    }
   }
   async getById(id: string): Promise<Review | null> {
     try {
@@ -53,6 +67,9 @@ class ReviewService implements AbsService<Review> {
     } catch (error) {
       throw error
     }
+  }
+  getAll(): Promise<Review[]> {
+    throw new Error("Method not implemented.");
   }
   update(id: string, data: Partial<Review>): Promise<Review | null> {
     throw new Error("Method not implemented.");
