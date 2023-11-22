@@ -23,6 +23,19 @@ class UserController {
     }
   }
 
+  delete = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params
+      if(!id) throw new Error("Id can't be null")
+      const deletedUser = await userServiceInstance.delete(id)
+      res.json({
+        status: deletedUser
+      });
+    } catch (error) {
+      next(error)
+    }
+  }
+
 }
 
 export default UserController

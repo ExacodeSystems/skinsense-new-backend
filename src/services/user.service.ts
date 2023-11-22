@@ -45,7 +45,7 @@ class UserService extends AbsService<User> {
     try {
       const q = "UPDATE user SET ? WHERE id = ?";
       const [result] = await pool.query<ResultSetHeader>(q, [data, id]);
-  
+
       if (result.affectedRows > 0) {
         return await this.getById(id);
       } else {
@@ -56,8 +56,25 @@ class UserService extends AbsService<User> {
       throw err;
     }
   }
-  delete(id: string): Promise<boolean> {
-    throw new Error("Method not implemented.");
+  async delete(id: string): Promise<boolean> {
+    try {
+      const user = await this.getById(id)
+
+      if (!user) throw new Error("User not found")
+
+      const [result] = await pool.query<ResultSetHeader>(
+        'DELETE FROM user WHERE id = ?',
+        [user.id]
+      )
+
+      if (result.affectedRows === 0) {
+        throw new Error('Failed to delete data.')
+      } else {
+        return true
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 
 }
