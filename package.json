@@ -9,7 +9,9 @@
     "dev": "NODE_ENV=development nodemon",
     "start": "NODE_ENV=production node dist/server",
     "test": "NODE_ENV=test vitest --coverage",
-    "format": "npx prettier . --write"
+    "format": "npx prettier . --write",
+    "docker-build": "docker compose build",
+    "docker-push": "docker push registry2.exacode.io/ikigai-backend"
   },
   "author": "Exacode Systems",
   "license": "ISC",

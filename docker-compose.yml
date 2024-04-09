@@ -3,7 +3,7 @@ version: "3.9"
 services:
   # Node API Service
   api:
-    image: registry.exacode.io/skinsense_backend:latest # Specify your custom Node.js image name and tag
+    image: registry2.exacode.io/skinsense-backend:latest # Specify your custom Node.js image name and tag
     build: .
     platform: linux/amd64
     env_file: ./.env.production
